@@ -1,0 +1,111 @@
+digraph ATMSistemi {
+    // Genel Ayarlar
+    rankdir=TB;
+    node [fontname="Helvetica", style=filled];
+    edge [fontname="Helvetica"];
+
+    // Düğüm Şekilleri için Stil Tanımlamaları
+    node [shape=oval, fillcolor="#c4e3f3"]; 
+    start; bitir; bitir_bloke;
+
+    node [shape=parallelogram, fillcolor="#f5d0a9"]; 
+    yaz_pin_iste; oku_pin; yaz_giris_basarili; yaz_kalan_hak; yaz_kart_bloke;
+    yaz_bilgiler; yaz_tutar_iste; oku_tutar; yaz_hata_kat; yaz_hata_bakiye;
+    yaz_hata_limit; yaz_islem_basarili; yaz_yeni_bilgiler; yaz_tekrar_sor; 
+    oku_tekrar_cevap; yaz_cikis_mesaji;
+
+    node [shape=box, fillcolor="#d3f8d3"]; 
+    init; islem_pin_dogru; islem_pin_yanlis; islem_para_cek;
+    
+    node [shape=diamond, fillcolor="#f9e79f"]; 
+    pin_dongu_kontrol; pin_kontrol; hak_kontrol; ana_dongu_kontrol; 
+    tutar_kat_kontrol; tutar_bakiye_kontrol; tutar_limit_kontrol;
+
+    // Etiketler
+    start [label="BAŞLA"];
+    init [label="Değişkenleri Ata:\npin_hakki = 3\npin_dogrulandi = YANLIŞ\ndevam_etme_secimi = 'E'\n..."];
+    
+    // --- PIN Doğrulama Akışı ---
+    pin_dongu_kontrol [label="pin_hakki > 0 VE\npin_dogrulandi == YANLIŞ?"];
+    yaz_pin_iste [label="YAZ 'Şifrenizi giriniz:'"];
+    oku_pin [label="OKU girilen_pin"];
+    pin_kontrol [label="girilen_pin == dogru_pin?"];
+    islem_pin_dogru [label="pin_dogrulandi = DOĞRU"];
+    yaz_giris_basarili [label="YAZ 'Giriş başarılı.'"];
+    islem_pin_yanlis [label="pin_hakki = pin_hakki - 1"];
+    hak_kontrol [label="pin_hakki > 0?"];
+    yaz_kalan_hak [label="YAZ 'Hatalı şifre.\nKalan hak: ' + pin_hakki"];
+    yaz_kart_bloke [label="YAZ 'Kartınız bloke edildi.'"];
+    bitir_bloke [label="BİTİR"];
+
+    // --- Ana İşlem Akışı ---
+    ana_dongu_kontrol [label="devam_etme_secimi == 'E'?"];
+    yaz_bilgiler [label="YAZ Bakiye ve Limit Bilgisi"];
+    yaz_tutar_iste [label="YAZ 'Çekilecek tutarı giriniz:'"];
+    oku_tutar [label="OKU cekilecek_tutar"];
+    tutar_kat_kontrol [label="cekilecek_tutar % 20 != 0?"];
+    yaz_hata_kat [label="YAZ 'HATA:\nTutar 20 TL ve katları olmalıdır.'"];
+    tutar_bakiye_kontrol [label="cekilecek_tutar > bakiye?"];
+    yaz_hata_bakiye [label="YAZ 'HATA:\nYetersiz bakiye.'"];
+    tutar_limit_kontrol [label="cekilecek_tutar > gunluk_limit?"];
+    yaz_hata_limit [label="YAZ 'HATA:\nGünlük limiti aştınız.'"];
+    islem_para_cek [label="İşlem: bakiye ve limiti güncelle"];
+    yaz_islem_basarili [label="YAZ 'İşlem başarılı.\nParanızı alınız.'"];
+    yaz_yeni_bilgiler [label="YAZ Yeni Bakiye ve Limit"];
+    yaz_tekrar_sor [label="YAZ 'Başka işlem? (E/H)'"];
+    oku_tekrar_cevap [label="OKU devam_etme_secimi"];
+    yaz_cikis_mesaji [label="YAZ 'İyi günler dileriz.'"];
+    bitir [label="BİTİR"];
+
+    // --- Bağlantılar ---
+    start -> init;
+    init -> pin_dongu_kontrol;
+
+    // PIN Döngüsü Bağlantıları
+    pin_dongu_kontrol -> yaz_pin_iste [label=" Evet"];
+    pin_dongu_kontrol -> ana_dongu_kontrol [label=" Hayır"];
+    yaz_pin_iste -> oku_pin;
+    oku_pin -> pin_kontrol;
+    pin_kontrol -> islem_pin_dogru [label=" Doğru"];
+    islem_pin_dogru -> yaz_giris_basarili;
+    yaz_giris_basarili -> pin_dongu_kontrol;
+    
+    pin_kontrol -> islem_pin_yanlis [label=" Yanlış"];
+    islem_pin_yanlis -> hak_kontrol;
+    hak_kontrol -> yaz_kalan_hak [label=" Evet"];
+    yaz_kalan_hak -> pin_dongu_kontrol;
+    hak_kontrol -> yaz_kart_bloke [label=" Hayır"];
+    yaz_kart_bloke -> bitir_bloke;
+
+    // Ana İşlem Döngüsü Bağlantıları
+    ana_dongu_kontrol -> yaz_bilgiler [label=" Evet"];
+    ana_dongu_kontrol -> yaz_cikis_mesaji [label=" Hayır"];
+    yaz_bilgiler -> yaz_tutar_iste;
+    yaz_tutar_iste -> oku_tutar;
+    oku_tutar -> tutar_kat_kontrol;
+    
+    // Tutar Kontrolü Bağlantıları
+    tutar_kat_kontrol -> tutar_bakiye_kontrol [label=" Hayır (Geçerli)"];
+    tutar_bakiye_kontrol -> tutar_limit_kontrol [label=" Hayır (Yeterli)"];
+    tutar_limit_kontrol -> islem_para_cek [label=" Hayır (Yeterli)"];
+
+    // İşlem Başarılı Akışı
+    islem_para_cek -> yaz_islem_basarili;
+    yaz_islem_basarili -> yaz_yeni_bilgiler;
+    yaz_yeni_bilgiler -> yaz_tekrar_sor;
+
+    // Hata Akışları ve Birleşme Noktası
+    tutar_kat_kontrol -> yaz_hata_kat [label=" Evet (Geçersiz)"];
+    tutar_bakiye_kontrol -> yaz_hata_bakiye [label=" Evet (Yetersiz)"];
+    tutar_limit_kontrol -> yaz_hata_limit [label=" Evet (Limit Aşıldı)"];
+    yaz_hata_kat -> yaz_tekrar_sor;
+    yaz_hata_bakiye -> yaz_tekrar_sor;
+    yaz_hata_limit -> yaz_tekrar_sor;
+
+    // Tekrar Sorgusu ve Döngü Başı
+    yaz_tekrar_sor -> oku_tekrar_cevap;
+    oku_tekrar_cevap -> ana_dongu_kontrol;
+
+    // Çıkış Bağlantısı
+    yaz_cikis_mesaji -> bitir;
+}
