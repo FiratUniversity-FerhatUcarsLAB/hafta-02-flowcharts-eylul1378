@@ -1,0 +1,8 @@
+Siz: Basit bir algoritmayı tanımlayan bir Graphviz DOT kodu verdiniz.
+Ben: Kodun ne anlama geldiğini, adımlarını ve nasıl bir akış şeması oluşturduğunu açıkladım.
+
+Siz: ATM para çekme sistemi için; PIN doğrulama (3 hak), bakiye, tutar ve limit kontrolleri ile işlem tekrarı seçeneği içeren detaylı bir pseudocode (sözde kod) yazmamı istediniz.
+Ben: İstenen tüm kontrolleri ve mantık adımlarını içeren, BAŞLA, DÖNGÜ, EĞER-İSE gibi yapılarla yazılmış detaylı bir pseudocode sundum.
+
+Siz: Oluşturduğum bu pseudocode'u, belirli şekil kurallarına (oval, paralelkenar, kutu, eşkenar dörtgen) uyarak ve tüm okları etiketleyerek bir Graphviz DOT koduna çevirmemi istediniz.
+Ben: Pseudocode'un her adımını görsel bir akış şemasına dönüştüren, tüm karar ve işlem akışlarını içeren detaylı Graphviz DOT kodunu hazırladım.
