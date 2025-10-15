@@ -1,0 +1,97 @@
+digraph HastaneBilgiSistemi {
+    // Graf ayarları
+    rankdir=TB; // Yukarından aşağıya akış
+    node [shape=box, style="filled", fillcolor="#EEEEEE"]; // Varsayılan düğüm stili
+
+    // Düğüm Tanımlamaları
+    start [shape=Mdiamond, label="Sistem Başlangıcı", fillcolor="#AAFFAA"];
+    end [shape=Mdiamond, label="Sistem Sonu", fillcolor="#FFAAAA"];
+
+    // Modül Başlangıç Noktaları
+    kimlik_dogrulama [label="T.C. No Girişi ve Kimlik Doğrulama"];
+    ana_menu [shape=parallelogram, label="Ana Menü Seçimi\n(1-Randevu, 2-Tahlil, 3-Çıkış)", fillcolor="#FFDDBB"];
+    randevu_modulu_baslangic [label="Randevu Modülü Başlangıcı", style=rounded];
+    tahlil_modulu_baslangic [label="Tahlil Modülü Başlangıcı", style=rounded];
+    
+    // Karar Noktaları (Koşullar)
+    k_dogrulama [shape=diamond, label="Kimlik Başarılı mı?"];
+    k_tekrar_islem [shape=diamond, label="Başka İşlem Yapılsın mı?"];
+    k_cikis [shape=diamond, label="Seçim = Çıkış (3)?"];
+
+    // --- Randevu Modülü Adımları ve Kararlar ---
+    r_poliklinik_sec [label="Poliklinik Seçimi (Döngü)", fillcolor="#CCEEFF"];
+    r_doktor_sec [label="Doktor Listesi ve Seçimi"];
+    r_saatleri_goster [label="Uygun Saatleri Getir ve Seç"];
+    k_saat_uygun [shape=diamond, label="Saat Uygun mu?"];
+    r_randevu_kaydet [label="Randevu Kaydı ve Onayı"];
+    r_sms_gonder [label="SMS Gönderimi"];
+
+    // --- Tahlil Modülü Adımları ve Kararlar ---
+    k_tahlil_var [shape=diamond, label="Kayıtlı Tahlil Var mı?"];
+    k_sonuc_hazir [shape=diamond, label="Sonuçlar Hazır mı?"];
+    t_sonuc_goster [label="Sonuçları Görüntüle"];
+    t_bekleme_mesaj [label="Bekleme Mesajı Göster"];
+    k_pdf_indir [shape=diamond, label="PDF İndir Seçeneği?"];
+    t_pdf_olustur [label="PDF Oluştur ve İndir"];
+
+    // ----------------------------------------------------------------------------------
+    // Akış Bağlantıları (Edge Definitions)
+    // ----------------------------------------------------------------------------------
+
+    // 1. Başlangıç ve Kimlik Doğrulama Akışı
+    start -> kimlik_dogrulama;
+    kimlik_dogrulama -> k_dogrulama;
+    k_dogrulama -> end [label="HAYIR", color=red];
+    k_dogrulama -> ana_menu [label="EVET", color=darkgreen];
+
+    // 2. Ana Menü Döngüsü ve Seçimler
+    ana_menu -> k_cikis;
+    k_cikis -> end [label="EVET (3)", color=darkgreen];
+
+    // Randevu Yönlendirmesi
+    k_cikis -> randevu_modulu_baslangic [label="Randevu (1)"];
+    randevu_modulu_baslangic -> r_poliklinik_sec;
+
+    // Tahlil Yönlendirmesi
+    k_cikis -> tahlil_modulu_baslangic [label="Tahlil (2)"];
+    tahlil_modulu_baslangic -> k_tahlil_var;
+
+    // İşlem Sonrası Döngü Kontrolü (Randevu ve Tahlil modüllerinin sonu)
+    r_sms_gonder -> k_tekrar_islem [label="Randevu Bitti"];
+    t_pdf_olustur -> k_tekrar_islem [label="Tahlil Bitti"];
+    t_bekleme_mesaj -> k_tekrar_islem [label="Tahlil Bitti"];
+    k_tahlil_var -> k_tekrar_islem [label="HAYIR\n(Kayıt Yok)", color=red];
+
+    // Tekrar İşlem Kararı
+    k_tekrar_islem -> ana_menu [label="EVET", color=darkgreen];
+    k_tekrar_islem -> end [label="HAYIR", color=red];
+
+    // ----------------------------------------------------------------------------------
+    // Modül İçi Akışlar
+    // ----------------------------------------------------------------------------------
+
+    // A. Randevu Modülü Akışları
+    r_poliklinik_sec -> r_doktor_sec;
+    r_doktor_sec -> r_saatleri_goster;
+    r_saatleri_goster -> k_saat_uygun;
+    
+    k_saat_uygun -> r_randevu_kaydet [label="EVET", color=darkgreen];
+    k_saat_uygun -> r_saatleri_goster [label="HAYIR\n(Yeniden Seç)", color=red]; // Saat Seçim Döngüsü
+    
+    r_randevu_kaydet -> r_sms_gonder;
+    // (Başarısız randevu kaydı durumunda hata mesajı ve tekrar deneme de eklenebilir,
+    // ancak akışı basitleştirmek için ana döngüye yönlendirildi.)
+
+    // B. Tahlil Modülü Akışları
+    k_tahlil_var -> k_sonuc_hazir [label="EVET", color=darkgreen];
+
+    k_sonuc_hazir -> t_sonuc_goster [label="EVET", color=darkgreen];
+    k_sonuc_hazir -> t_bekleme_mesaj [label="HAYIR", color=red];
+
+    t_sonuc_goster -> k_pdf_indir;
+    k_pdf_indir -> t_pdf_olustur [label="EVET", color=darkgreen];
+    k_pdf_indir -> k_tekrar_islem [label="HAYIR", color=red];
+
+    // Düğümler Arasındaki Mantıksal Gruplamayı Geliştirmek İçin Görünmez Bağlantılar
+    {rank=same; tahlil_modulu_baslangic; randevu_modulu_baslangic;}
+}
