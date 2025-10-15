@@ -1,0 +1,123 @@
+digraph DersKayitSistemi_Gelistirilmis {
+    // --- Genel Ayarlar ---
+    rankdir=TB;
+    splines=true;
+    overlap=false;
+    nodesep=0.6;
+    ranksep=0.8;
+    fontname="Arial";
+    
+    // --- Genel Düğüm ve Kenar Stilleri ---
+    node [style="rounded,filled"];
+    edge [fontname="Arial", fontsize=10];
+
+    // --- 1. Adım: Sisteme Giriş ---
+    subgraph cluster_Giris {
+        label = "1. Adım: Sisteme Giriş";
+        style="filled,rounded";
+        color="#f5f5f5";
+        
+        A_Basla [label="Başla", shape=ellipse, fillcolor="#a5d6a7"];
+        B_Giris [label="Öğrenci No ve Şifre Gir", shape=parallelogram, fillcolor="#eeeeee"];
+        C_Dogrulama [label="Giriş Başarılı mı?", shape=diamond, fillcolor="#fff9c4"];
+        D_GirisHata [label="HATA: Hatalı Giriş\nSistem Sonlanır", shape=box, fillcolor="#ffcdd2"];
+    }
+
+    // --- 2. Adım: Ana Döngü ---
+    subgraph cluster_AnaDongu {
+        label = "2. Adım: Ders Seçim Döngüsü";
+        style="filled,rounded";
+        color="#f5f5f5";
+
+        E_Menu [label="Dersleri ve Seçimleri Göster\nİşlem Seçeneklerini Sun", shape=parallelogram, fillcolor="#eeeeee"];
+        F_IslemSecimi [label="Hangi İşlem Yapılacak?", shape=diamond, fillcolor="#fff9c4"];
+
+        // --- Ders Ekleme Kontrol Bloğu ---
+        subgraph cluster_DersEkleme {
+            label = "Ders Ekleme Kontrolleri";
+            style="dashed";
+
+            F1_DersKoduGir [label="Eklenecek Ders Kodunu Gir", shape=parallelogram, fillcolor="#eeeeee"];
+            F2_KrediKontrol [label="Kredi Limiti Yeterli mi?", shape=diamond, fillcolor="#fff9c4"];
+            F3_CakismaKontrol [label="Zaman Çakışması Var mı?", shape=diamond, fillcolor="#fff9c4"];
+            F4_OnkosulKontrol [label="Ön Koşul Sağlandı mı?", shape=diamond, fillcolor="#fff9c4"];
+            F5_KontenjanKontrol [label="Kontenjan Yeterli mi?", shape=diamond, fillcolor="#fff9c4"];
+            F6_DersEkle [label="Ders Başarıyla Eklendi", shape=box, fillcolor="#c8e6c9"];
+        }
+
+        // --- Ders Çıkarma Bloğu ---
+        subgraph cluster_DersCikarma {
+            label = "Ders Çıkarma";
+            style="dashed";
+            
+            G1_DersKoduCikar [label="Çıkarılacak Ders Kodunu Gir", shape=parallelogram, fillcolor="#eeeeee"];
+            G2_DersSeciliMi [label="Ders Listede Mevcut mu?", shape=diamond, fillcolor="#fff9c4"];
+            G3_DersCikar [label="Ders Başarıyla Çıkarıldı", shape=box, fillcolor="#c8e6c9"];
+        }
+    }
+
+    // --- 3. Adım: Kayıt Onaylama ---
+    subgraph cluster_Onaylama {
+        label = "3. Adım: Kayıt Onaylama";
+        style="filled,rounded";
+        color="#f5f5f5";
+
+        I_KayitOzeti [label="Kayıt Özetini Göster", shape=parallelogram, fillcolor="#eeeeee"];
+        J_GPA_Kontrol [label="GPA < 2.5 mi?", shape=diamond, fillcolor="#fff9c4"];
+        K_DanismanOnayi [label="Kayıt Danışman Onayına Gönderildi", shape=box, fillcolor="#bbdefb"];
+        L_KayitTamam [label="Kayıt Başarıyla Tamamlandı", shape=box, fillcolor="#c8e6c9"];
+    }
+    
+    M_Son [label="Son", shape=ellipse, fillcolor="#ef9a9a"];
+
+    // --- Hata Düğümleri ---
+    Hata_Kredi [label="HATA:\nKredi Limiti Aşıldı", shape=box, fillcolor="#ffcdd2"];
+    Hata_Cakisma [label="HATA:\nZaman Çakışması", shape=box, fillcolor="#ffcdd2"];
+    Hata_Onkosul [label="HATA:\nÖn Koşul Sağlanmadı", shape=box, fillcolor="#ffcdd2"];
+    Hata_Kontenjan [label="HATA:\nKontenjan Dolu", shape=box, fillcolor="#ffcdd2"];
+    Hata_DersYok [label="HATA:\nDers Seçili Değil", shape=box, fillcolor="#ffcdd2"];
+    Hata_GecersizIslem [label="HATA:\nGeçersiz İşlem", shape=box, fillcolor="#ffcdd2"];
+
+    // --- Akış Çizgileri (Kenarlar) ---
+    // Giriş Akışı
+    A_Basla -> B_Giris;
+    B_Giris -> C_Dogrulama;
+    C_Dogrulama -> E_Menu [label="Evet"];
+    C_Dogrulama -> D_GirisHata [label="Hayır"];
+    D_GirisHata -> M_Son;
+
+    // Ana Döngü Akışı
+    E_Menu -> F_IslemSecimi;
+    F_IslemSecimi -> F1_DersKoduGir [label="Ders Ekle"];
+    F_IslemSecimi -> G1_DersKoduCikar [label="Ders Çıkar"];
+    F_IslemSecimi -> I_KayitOzeti [label="Kaydı Bitir"];
+    F_IslemSecimi -> Hata_GecersizIslem [label="Diğer"];
+    
+    // Ders Ekleme Akışı (Zincirleme Kontroller)
+    F1_DersKoduGir -> F2_KrediKontrol;
+    F2_KrediKontrol -> F3_CakismaKontrol [label="Limit OK"];
+    F3_CakismaKontrol -> F4_OnkosulKontrol [label="Çakışma Yok"];
+    F4_OnkosulKontrol -> F5_KontenjanKontrol [label="Ön Koşul OK"];
+    F5_KontenjanKontrol -> F6_DersEkle [label="Kontenjan Var"];
+
+    // Ders Ekleme Hata Yolları
+    F2_KrediKontrol -> Hata_Kredi [label="Limit Aşıldı"];
+    F3_CakismaKontrol -> Hata_Cakisma [label="Çakışma Var"];
+    F4_OnkosulKontrol -> Hata_Onkosul [label="Ön Koşul Eksik"];
+    F5_KontenjanKontrol -> Hata_Kontenjan [label="Kontenjan Dolu"];
+    
+    // Ders Çıkarma Akışı
+    G1_DersKoduCikar -> G2_DersSeciliMi;
+    G2_DersSeciliMi -> G3_DersCikar [label="Evet"];
+    G2_DersSeciliMi -> Hata_DersYok [label="Hayır"];
+
+    // Döngüye Dönüşler
+    {F6_DersEkle, G3_DersCikar, Hata_Kredi, Hata_Cakisma, Hata_Onkosul, Hata_Kontenjan, Hata_DersYok, Hata_GecersizIslem} -> E_Menu [label="Ana Menüye Dön"];
+
+    // Kayıt Bitirme Akışı
+    I_KayitOzeti -> J_GPA_Kontrol;
+    J_GPA_Kontrol -> K_DanismanOnayi [label="Evet (GPA Düşük)"];
+    J_GPA_Kontrol -> L_KayitTamam [label="Hayır (GPA Yeterli)"];
+    K_DanismanOnayi -> M_Son;
+    L_KayitTamam -> M_Son;
+}
