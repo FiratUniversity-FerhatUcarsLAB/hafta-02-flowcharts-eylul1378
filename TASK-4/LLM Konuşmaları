@@ -1,0 +1,14 @@
+Siz: Bana bir ders kayıt sisteminin gereksinimlerini listelediniz ve bu gereksinimlere göre sistemin genel akışını ve kontrollerini açıklamamı istediniz.
+Ben: İstekleriniz doğrultusunda sistemin genel akışını (giriş, ders seçimi, onaylama vb.) ve her adımda yapılması gereken kontrolleri (kontenjan, kredi, ön koşul vb.) detaylı bir şekilde açıkladım.
+
+Siz: Bu açıklamaları temel alarak, tüm kontrolleri içeren detaylı bir pseudocode yazmamı talep ettiniz.
+Ben: İç içe koşul yapıları ve döngüler kullanarak istediğiniz pseudocode'u oluşturdum.
+
+Siz: Bu pseudocode'u görsel bir akış şemasına dönüştürmek için Graphviz DOT diline çevirmemi istediniz.
+Ben: Pseudocode'un mantığını takip eden temel bir DOT kodu hazırladım.
+
+Siz: Oluşturulan DOT kodunu, akış şeması daha anlaşılır olacak şekilde (gruplandırarak ve tüm kontrol noktalarını eşkenar dörtgen ile göstererek) geliştirmemi talep ettiniz.
+Ben: Akış şemasını daha okunabilir hale getiren, ancak küçük bir syntax hatası içeren gelişmiş bir DOT kodu sundum.
+
+Siz: Kod içerisindeki syntax hatalarını gidermemi istediniz.
+Ben: Geri bildiriminiz üzerine syntax hatasını düzelterek, projenin nihai hali olan gruplandırılmış, anlaşılır ve tamamen çalışır durumdaki son DOT kodunu size teslim ettim.
