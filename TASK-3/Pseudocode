@@ -1,0 +1,188 @@
+==KİMLİK DOĞRULAMA MODÜLÜ==
+
+FONKSIYON ANA_MENU()
+    BASLA
+        DONGU_ANA:
+            YAZDIR("--- Hastane Sistemi Ana Menü ---")
+            YAZDIR("Lütfen kimlik doğrulaması yapınız.")
+            
+            DONGU_TC:
+                GIRDI_AL(TC_NO, "TC Kimlik Numaranızı giriniz: ")
+                
+                // TC Kimlik No Format Kontrolü (örnek bir kontrol)
+                EĞER (UZUNLUK(TC_NO) EŞİT DEĞİL 11) VEYA (SADECE_SAYILARDAN_OLUŞMUYOR(TC_NO)) İSE
+                    YAZDIR("Hata: Geçersiz TC Kimlik Numarası formatı. Lütfen tekrar deneyin.")
+                DEĞİLSE
+                    // Veritabanında hasta kontrolü ve kimlik doğrulama
+                    EĞER (HASTA_KIMLIK_DOGRULA(TC_NO)) İSE
+                        YAZDIR("Kimlik doğrulama başarılı.")
+                        KIR DONGU_TC
+                    DEĞİLSE
+                        YAZDIR("Hata: Sistemde kayıtlı hasta bulunamadı veya doğrulama başarısız.")
+                        DEVAM ET DONGU_TC
+                BİTİR EĞER
+            
+            
+            DONGU_ISLEM:
+                YAZDIR("Lütfen yapmak istediğiniz işlemi seçin:")
+                YAZDIR("1 - Randevu Al")
+                YAZDIR("2 - Tahlil Sonucu Gör")
+                YAZDIR("0 - Sistemi Kapat")
+                GIRDI_AL(SECIM, "Seçiminiz (1, 2 veya 0): ")
+                
+                EĞER SECIM EŞİT 1 İSE
+                    RANDEVU_MODULU(TC_NO) // Randevu Modülüne git
+                EĞER SECIM EŞİT 2 İSE
+                    TAHLIL_MODULU(TC_NO)   // Tahlil Modülüne git
+                EĞER SECIM EŞİT 0 İSE
+                    YAZDIR("Sistemden çıkılıyor. İyi günler dileriz.")
+                    KIR DONGU_ANA // Ana döngüyü kır ve sistemi kapat
+                DEĞİLSE
+                    YAZDIR("Geçersiz seçim. Lütfen tekrar deneyiniz.")
+                    DEVAM ET DONGU_ISLEM
+                BİTİR EĞER
+
+                // İşlem sonrası devam etme sorgusu (İşlem Modülünden dönüldükten sonra)
+                DONGU_DEVAM:
+                    GIRDI_AL(DEVAM_SECIM, "Başka bir işlem yapmak ister misiniz? (E/H): ")
+                    EĞER UPPER(DEVAM_SECIM) EŞİT "H" İSE
+                        YAZDIR("Sistemden çıkılıyor. İyi günler dileriz.")
+                        KIR DONGU_ANA // Ana döngüyü kır ve sistemi kapat
+                    EĞER UPPER(DEVAM_SECIM) EŞİT "E" İSE
+                        KIR DONGU_DEVAM // Ana menüye dönmek için devam et
+                    DEĞİLSE
+                        YAZDIR("Geçersiz giriş. Lütfen 'E' veya 'H' giriniz.")
+                        DEVAM ET DONGU_DEVAM
+                BİTİR DONGU_DEVAM
+
+        BİTİR DONGU_ANA
+    SON
+
+==RANDEVU MODÜLÜ==
+
+FONKSIYON RANDEVU_MODULU(HASTA_TC)
+    BASLA
+        YAZDIR("--- Randevu Alma Modülü ---")
+        
+        DONGU_POLIKLINIK:
+            // 1. Poliklinik Seçimi
+            YAZDIR("Lütfen bir Poliklinik seçiniz:")
+            POLIKLINIK_LISTESI = VERITABANI_POLIKLINIK_AL()
+            GOSTER_LISTE(POLIKLINIK_LISTESI)
+            GIRDI_AL(SECILEN_POLIKLINIK, "Poliklinik Seçiminiz: ")
+            
+            EĞER (SECILEN_POLIKLINIK GEÇERLİ) İSE
+                KIR DONGU_POLIKLINIK
+            DEĞİLSE
+                YAZDIR("Hata: Geçersiz poliklinik seçimi.")
+        BİTİR DONGU_POLIKLINIK
+
+        DONGU_DOKTOR:
+            // 2. Doktor Listesi ve Seçimi
+            YAZDIR("--- Doktor Seçimi ---")
+            DOKTOR_LISTESI = VERITABANI_DOKTOR_AL(SECILEN_POLIKLINIK)
+            EĞER (UZUNLUK(DOKTOR_LISTESI) EŞİT 0) İSE
+                YAZDIR("Bu poliklinikte uygun doktor bulunmamaktadır. Lütfen başka bir poliklinik seçiniz.")
+                GIT DONGU_POLIKLINIK // Poliklinik seçimine geri dön
+            DEĞİLSE
+                GOSTER_LISTE(DOKTOR_LISTESI)
+                GIRDI_AL(SECILEN_DOKTOR, "Doktor Seçiminiz: ")
+                
+                EĞER (SECILEN_DOKTOR GEÇERLİ) İSE
+                    KIR DONGU_DOKTOR
+                DEĞİLSE
+                    YAZDIR("Hata: Geçersiz doktor seçimi.")
+        BİTİR DONGU_DOKTOR
+
+        DONGU_SAAT:
+            // 3. Uygun Saatlerin Gösterilmesi ve Seçimi
+            YAZDIR("--- Uygun Saat Seçimi ---")
+            UYGUN_SAATLER = VERITABANI_UYGUN_SAATLER_AL(SECILEN_DOKTOR)
+            EĞER (UZUNLUK(UYGUN_SAATLER) EŞİT 0) İSE
+                YAZDIR("Seçilen doktor için uygun randevu saati bulunmamaktadır. Lütfen başka bir doktor seçiniz.")
+                GIT DONGU_DOKTOR // Doktor seçimine geri dön
+            DEĞİLSE
+                GOSTER_LISTE(UYGUN_SAATLER)
+                GIRDI_AL(SECILEN_SAAT, "Saat Seçiminiz (GG/AA/YYYY SS:DD): ")
+                
+                EĞER (SECILEN_SAAT GEÇERLİ VE BOŞ DEĞİL) İSE
+                    KIR DONGU_SAAT
+                DEĞİLSE
+                    YAZDIR("Hata: Geçersiz saat seçimi.")
+        BİTİR DONGU_SAAT
+
+        // 4. Randevu Onayı ve Kayıt
+        YAZDIR("--- Randevu Onayı ---")
+        YAZDIR("Poliklinik: " + SECILEN_POLIKLINIK)
+        YAZDIR("Doktor: " + SECILEN_DOKTOR)
+        YAZDIR("Tarih/Saat: " + SECILEN_SAAT)
+        
+        GIRDI_AL(ONAY, "Randevuyu onaylıyor musunuz? (E/H): ")
+        
+        EĞER UPPER(ONAY) EŞİT "E" İSE
+            // Randevu veritabanına kaydedilir
+            RAND_ID = VERITABANI_RANDEVU_KAYDET(HASTA_TC, SECILEN_POLIKLINIK, SECILEN_DOKTOR, SECILEN_SAAT)
+            EĞER (RAND_ID BAŞARILI) İSE
+                YAZDIR("Randevunuz başarıyla oluşturuldu. Randevu No: " + RAND_ID)
+                
+                // SMS Gönderimi
+                HASTA_TEL = VERITABANI_HASTA_TEL_AL(HASTA_TC)
+                SMS_MESAJ = "Randevu Bilgileriniz: " + SECILEN_POLIKLINIK + ", " + SECILEN_DOKTOR + ", " + SECILEN_SAAT
+                SMS_GONDER(HASTA_TEL, SMS_MESAJ)
+                YAZDIR("Randevu bilgileriniz SMS olarak gönderilmiştir.")
+            DEĞİLSE
+                YAZDIR("Hata: Randevu kaydı sırasında bir sorun oluştu.")
+            BİTİR EĞER
+        DEĞİLSE
+            YAZDIR("Randevu almaktan vazgeçildi. Ana menüye dönülüyor.")
+        BİTİR EĞER
+
+    SON
+
+==TAHLİL MODÜLÜ=
+
+FONKSIYON TAHLIL_MODULU(HASTA_TC)
+    BASLA
+        YAZDIR("--- Tahlil Sonucu Görüntüleme Modülü ---")
+        
+        // 1. Tahlil Var Mı Kontrolü
+        TAHLIL_LISTESI = VERITABANI_TAHLIL_KONTROL(HASTA_TC)
+        
+        EĞER (UZUNLUK(TAHLIL_LISTESI) EŞİT 0) İSE
+            YAZDIR("Sistemde adınıza ait beklemede veya tamamlanmış herhangi bir tahlil kaydı bulunmamaktadır.")
+            GERI_DON() // Ana Menüye dönme sinyali
+        DEĞİLSE
+            YAZDIR("Adınıza kayıtlı tahlil sonuçları:")
+            GOSTER_LISTE(TAHLIL_LISTESI)
+            GIRDI_AL(SECILEN_TAHLIL_ID, "Görüntülemek istediğiniz tahlilin ID numarasını giriniz: ")
+            
+            TAHLIL_DURUMU = VERITABANI_TAHLIL_DURUM_AL(SECILEN_TAHLIL_ID)
+            
+            // 2. Sonuç Hazır Mı Kontrolü (koşul)
+            EĞER (TAHLIL_DURUMU EŞİT "HAZIR") İSE
+                // 3. Sonuç Görüntüleme
+                TAHLIL_SONUCU = VERITABANI_TAHLIL_SONUC_AL(SECILEN_TAHLIL_ID)
+                YAZDIR("--- Tahlil Sonuçları ---")
+                GOSTER_SONUC(TAHLIL_SONUCU) // Sonuçları ekrana bas
+                
+                // 4. Sonuçları PDF İndir Seçeneği
+                GIRDI_AL(PDF_SECIM, "Sonucu PDF olarak indirmek ister misiniz? (E/H): ")
+                EĞER UPPER(PDF_SECIM) EŞİT "E" İSE
+                    PDF_OLUSTUR_VE_INDIR(TAHLIL_SONUCU, SECILEN_TAHLIL_ID)
+                    YAZDIR("Tahlil sonucu PDF olarak indirilmiştir.")
+                BİTİR EĞER
+                
+            EĞER (TAHLIL_DURUMU EŞİT "BEKLEMEDE") İSE
+                // Bekleme mesajı
+                YAZDIR("Tahlil sonucunuz henüz hazır değildir. Lütfen daha sonra tekrar kontrol ediniz.")
+                
+            EĞER (TAHLIL_DURUMU EŞİT "HATALI") İSE
+                YAZDIR("Tahlil sonucunuzun durumunda bir sorun oluştu. Lütfen hastane ile iletişime geçiniz.")
+
+            DEĞİLSE
+                YAZDIR("Hata: Geçersiz tahlil seçimi veya durum.")
+            BİTİR EĞER
+
+        BİTİR EĞER
+        
+    SON
