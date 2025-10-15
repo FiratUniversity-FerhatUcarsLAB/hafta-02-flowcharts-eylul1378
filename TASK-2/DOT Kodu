@@ -1,0 +1,82 @@
+digraph EcommerceFlow {
+    // Grafik ayarları
+    rankdir=TB;
+    charset="UTF-8";
+    graph [fontname="Arial"];
+    node [fontname="Arial", fontsize=10];
+    edge [fontname="Arial", fontsize=9];
+
+    // Node (Düğüm) Şekilleri Tanımlaması
+    // Başla/Bitir: oval
+    start_node [shape=oval, style="filled", fillcolor="#90EE90", label="BAŞLA"];
+    end_node [shape=oval, style="filled", fillcolor="#F08080", label="BİTİR"];
+    end_node_hata [shape=oval, style="filled", fillcolor="#F08080", label="İŞLEM SONLANDI"];
+    
+    // Girdi/Çıktı: parallelogram
+    girdi_urun_secimi [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Kullanıcı Ürün Seçer ve Sepete Ekler"];
+    cikti_giris_yonlendir [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Çıktı: Giriş Sayfasına Yönlendir"];
+    cikti_stok_yok [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Çıktı: Uyarı 'Stok Yok'"];
+    cikti_min_tutar_uyari [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Çıktı: Uyarı 'Minimum Tutar 50 TL Olmalıdır'"];
+    cikti_odeme_basarisiz [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Çıktı: Uyarı 'Ödeme Başarısız'"];
+    cikti_siparis_onay [shape=parallelogram, style="filled", fillcolor="#ADD8E6", label="Çıktı: Sipariş Onayını Göster ve E-posta Gönder"];
+    
+    // İşlem: box
+    islem_sepete_ekle [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Ürünü Sepete Ekle"];
+    islem_sepet_hesapla [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Sepeti Listele ve Ara Toplamı Hesapla"];
+    islem_indirim_uygula [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: İndirimi Uygula ve Genel Toplamı Hesapla"];
+    islem_kargo_ekle [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Standart Kargo Ücreti Ekle"];
+    islem_ucretsiz_kargo [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Kargo Ücretini Sıfırla"];
+    islem_odeme_al [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Kredi Kartı Bilgilerini İşle"];
+    islem_havale_goster [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Havale/EFT Bilgilerini Göster"];
+    islem_siparisi_kaydet [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Siparişi Kaydet"];
+    islem_stok_dus [shape=box, style="filled", fillcolor="#E6E6FA", label="İşlem: Stoktan Düş"];
+
+    // Karar: diamond
+    karar_giris [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Giriş Yapılmış mı?"];
+    karar_stok [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Stok Mevcut mu?"];
+    karar_indirim [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: İndirim Kodu Geçerli mi?"];
+    karar_min_tutar [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Genel Toplam >= 50 TL mi?"];
+    karar_kargo [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Genel Toplam >= 200 TL mi?"];
+    karar_odeme_yontemi [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Ödeme Yöntemi Kredi Kartı mı?"];
+    karar_odeme_basarili [shape=diamond, style="filled", fillcolor="#FFDAB9", label="Karar: Ödeme Başarılı mı?"];
+
+
+    // Akış Bağlantıları
+    start_node -> karar_giris;
+    karar_giris -> girdi_urun_secimi [label="EVET"];
+    karar_giris -> cikti_giris_yonlendir [label="HAYIR"];
+    cikti_giris_yonlendir -> end_node_hata;
+
+    girdi_urun_secimi -> karar_stok;
+    karar_stok -> islem_sepete_ekle [label="EVET"];
+    karar_stok -> cikti_stok_yok [label="HAYIR"];
+    cikti_stok_yok -> end_node_hata;
+
+    islem_sepete_ekle -> islem_sepet_hesapla;
+    islem_sepet_hesapla -> karar_indirim;
+    karar_indirim -> islem_indirim_uygula [label="EVET"];
+    karar_indirim -> karar_min_tutar [label="HAYIR"];
+    
+    islem_indirim_uygula -> karar_min_tutar;
+    karar_min_tutar -> karar_kargo [label="EVET"];
+    karar_min_tutar -> cikti_min_tutar_uyari [label="HAYIR"];
+    cikti_min_tutar_uyari -> end_node_hata;
+    
+    karar_kargo -> islem_ucretsiz_kargo [label="EVET"];
+    karar_kargo -> islem_kargo_ekle [label="HAYIR"];
+    islem_ucretsiz_kargo -> karar_odeme_yontemi;
+    islem_kargo_ekle -> karar_odeme_yontemi;
+
+    karar_odeme_yontemi -> islem_odeme_al [label="EVET"];
+    karar_odeme_yontemi -> islem_havale_goster [label="HAYIR\n(Havale/EFT)"];
+    islem_havale_goster -> end_node; 
+    
+    islem_odeme_al -> karar_odeme_basarili;
+    karar_odeme_basarili -> islem_siparisi_kaydet [label="EVET"];
+    karar_odeme_basarili -> cikti_odeme_basarisiz [label="HAYIR"];
+    cikti_odeme_basarisiz -> end_node_hata;
+    
+    islem_siparisi_kaydet -> islem_stok_dus;
+    islem_stok_dus -> cikti_siparis_onay;
+    cikti_siparis_onay -> end_node;
+}
