@@ -1,188 +1,139 @@
-==KİMLİK DOĞRULAMA MODÜLÜ==
+FONKSIYON HastaneBilgiSistemi()
+    // ----------------------------------------------------
+    // Adım 1: Başlangıç ve Kimlik Doğrulama
+    // ----------------------------------------------------
+    YAZDIR("Hastane Bilgi Sistemine Hoş Geldiniz.")
+    YAZDIR("Lütfen T.C. Kimlik Numaranızı (TC No) giriniz:")
+    OKU(tc_no)
+    
+    EĞER KimlikDogrulama(tc_no) == BAŞARILI İSE
+        YAZDIR("Kimlik doğrulama başarılı.")
+        
+        // Ana İşlem Döngüsü Başlangıcı (Sürekli Çalışma)
+        DONGU_DEVAM_ET = DOĞRU
+        DONGU SÜRESİNCE (DONGU_DEVAM_ET)
+            
+            // ----------------------------------------------------
+            // Adım 2: Ana İşlem Seçimi (Koşul)
+            // ----------------------------------------------------
+            YAZDIR("\n--- Ana Menü ---")
+            YAZDIR("1: Randevu Al")
+            YAZDIR("2: Tahlil Sonucu Gör")
+            YAZDIR("3: Çıkış")
+            YAZDIR("Lütfen bir işlem seçiniz (1-3):")
+            OKU(ana_secim)
 
-FONKSIYON ANA_MENU()
-    BASLA
-        DONGU_ANA:
-            YAZDIR("--- Hastane Sistemi Ana Menü ---")
-            YAZDIR("Lütfen kimlik doğrulaması yapınız.")
-            
-            DONGU_TC:
-                GIRDI_AL(TC_NO, "TC Kimlik Numaranızı giriniz: ")
+            // ----------------------------------------------------
+            // Modül A: Randevu Modülü
+            // ----------------------------------------------------
+            EĞER ana_secim == 1 İSE
+                YAZDIR("\n--- Randevu Alma Modülü ---")
                 
-                // TC Kimlik No Format Kontrolü (örnek bir kontrol)
-                EĞER (UZUNLUK(TC_NO) EŞİT DEĞİL 11) VEYA (SADECE_SAYILARDAN_OLUŞMUYOR(TC_NO)) İSE
-                    YAZDIR("Hata: Geçersiz TC Kimlik Numarası formatı. Lütfen tekrar deneyin.")
-                DEĞİLSE
-                    // Veritabanında hasta kontrolü ve kimlik doğrulama
-                    EĞER (HASTA_KIMLIK_DOGRULA(TC_NO)) İSE
-                        YAZDIR("Kimlik doğrulama başarılı.")
-                        KIR DONGU_TC
-                    DEĞİLSE
-                        YAZDIR("Hata: Sistemde kayıtlı hasta bulunamadı veya doğrulama başarısız.")
-                        DEVAM ET DONGU_TC
-                BİTİR EĞER
-            
-            
-            DONGU_ISLEM:
-                YAZDIR("Lütfen yapmak istediğiniz işlemi seçin:")
-                YAZDIR("1 - Randevu Al")
-                YAZDIR("2 - Tahlil Sonucu Gör")
-                YAZDIR("0 - Sistemi Kapat")
-                GIRDI_AL(SECIM, "Seçiminiz (1, 2 veya 0): ")
+                // Poliklinik Seçimi (Döngü)
+                POLIKLINIK_SECİMİ_BAŞARILI = YANLIŞ
+                DONGU SÜRESİNCE (POLIKLINIK_SECİMİ_BAŞARILI == YANLIŞ)
+                    YAZDIR("Lütfen randevu almak istediğiniz polikliniği seçiniz:")
+                    POLIKLINIK_LISTESI_GETIR()
+                    OKU(secilen_poliklinik)
+                    EĞER PoliklinikGeçerliMi(secilen_poliklinik) İSE
+                        POLIKLINIK_SECİMİ_BAŞARILI = DOĞRU
+                    AKSİ HALDE
+                        YAZDIR("Geçersiz seçim.")
+                    SON_EĞER
+                SON_DONGU
                 
-                EĞER SECIM EŞİT 1 İSE
-                    RANDEVU_MODULU(TC_NO) // Randevu Modülüne git
-                EĞER SECIM EŞİT 2 İSE
-                    TAHLIL_MODULU(TC_NO)   // Tahlil Modülüne git
-                EĞER SECIM EŞİT 0 İSE
+                // Doktor Listesi Görüntüleme
+                YAZDIR("Uygun doktorlar listeleniyor...")
+                doktor_listesi = DoktorlariGetir(secilen_poliklinik)
+                YAZDIR(doktor_listesi)
+                OKU(secilen_doktor_id)
+
+                // Uygun Saatleri Gösterme (Döngü)
+                uygun_saatler = UygunSaatleriGetir(secilen_doktor_id)
+                EĞER uygun_saatler BOŞ DEĞİL İSE
+                    YAZDIR("\nUygun Saatler:")
+                    YAZDIR(uygun_saatler)
+                    YAZDIR("Lütfen bir tarih ve saat seçiniz:")
+                    OKU(secilen_saat_tarih)
+                    
+                    EĞER RandevuKaydet(tc_no, secilen_doktor_id, secilen_saat_tarih) == BAŞARILI İSE
+                        // Randevu Onayı ve SMS Gönderimi
+                        YAZDIR("Randevunuz başarıyla oluşturuldu ve onaylandı.")
+                        SMS_Gonder(tc_no, "Randevu onay bilgisi: " + secilen_saat_tarih)
+                    AKSİ HALDE
+                        YAZDIR("Randevu kaydı başarısız oldu.")
+                    SON_EĞER
+                AKSİ HALDE
+                    YAZDIR("Seçilen doktor için uygun saat bulunmamaktadır.")
+                SON_EĞER
+            
+            // ----------------------------------------------------
+            // Modül B: Tahlil Sonucu Görüntüleme Modülü
+            // ----------------------------------------------------
+            EĞER ana_secim == 2 İSE
+                YAZDIR("\n--- Tahlil Sonucu Görüntüleme Modülü ---")
+                
+                // Tahlil Varlığı Kontrolü (Koşul)
+                EĞER TahlilVarMi(tc_no) == EVET İSE
+                    
+                    // Sonuç Hazır Mı Kontrolü (Koşul)
+                    EĞER SonuclarHazirMi(tc_no) == EVET İSE
+                        // Sonuç Görüntüleme
+                        tahlil_sonuclari = TahlilSonuclariniGetir(tc_no)
+                        YAZDIR("\n--- Tahlil Sonuçlarınız ---")
+                        YAZDIR(tahlil_sonuclari) 
+                        
+                        // PDF İndir Seçeneği
+                        YAZDIR("\nSonuçları PDF olarak indirmek ister misiniz? (E/H)")
+                        OKU(pdf_secim)
+                        EĞER pdf_secim == "E" VEYA pdf_secim == "e" İSE
+                            PDF_Olustur_Ve_Indir(tahlil_sonuclari)
+                            YAZDIR("PDF başarıyla oluşturuldu ve indirildi.")
+                        SON_EĞER
+                    AKSİ HALDE
+                        // Bekleme Mesajı
+                        YAZDIR("Tahlil sonuçlarınız henüz hazır değildir. Lütfen daha sonra kontrol ediniz.")
+                    SON_EĞER
+                AKSİ HALDE
+                    YAZDIR("Adınıza kayıtlı beklemede veya tamamlanmış tahlil kaydı bulunmamaktadır.")
+                SON_EĞER
+            
+            // ----------------------------------------------------
+            // Adım 3: Çıkış ve Genel Döngü Kontrolü
+            // ----------------------------------------------------
+            EĞER ana_secim == 3 İSE
+                YAZDIR("Sistemden çıkılıyor. İyi günler dileriz.")
+                DONGU_DEVAM_ET = YANLIŞ // Ana döngüyü sonlandır
+            AKSİ HALDE EĞER ana_secim == 1 VEYA ana_secim == 2 İSE
+                // Başka işlem yapmak ister misiniz? (Döngü)
+                YAZDIR("\nBaşka bir işlem yapmak ister misiniz? (E/H)")
+                OKU(tekrar_secim)
+                EĞER tekrar_secim == "H" VEYA tekrar_secim == "h" İSE
                     YAZDIR("Sistemden çıkılıyor. İyi günler dileriz.")
-                    KIR DONGU_ANA // Ana döngüyü kır ve sistemi kapat
-                DEĞİLSE
-                    YAZDIR("Geçersiz seçim. Lütfen tekrar deneyiniz.")
-                    DEVAM ET DONGU_ISLEM
-                BİTİR EĞER
+                    DONGU_DEVAM_ET = YANLIŞ
+                SON_EĞER
+            AKSİ HALDE
+                YAZDIR("Geçersiz seçim. Lütfen 1, 2 veya 3 giriniz.")
+            SON_EĞER
 
-                // İşlem sonrası devam etme sorgusu (İşlem Modülünden dönüldükten sonra)
-                DONGU_DEVAM:
-                    GIRDI_AL(DEVAM_SECIM, "Başka bir işlem yapmak ister misiniz? (E/H): ")
-                    EĞER UPPER(DEVAM_SECIM) EŞİT "H" İSE
-                        YAZDIR("Sistemden çıkılıyor. İyi günler dileriz.")
-                        KIR DONGU_ANA // Ana döngüyü kır ve sistemi kapat
-                    EĞER UPPER(DEVAM_SECIM) EŞİT "E" İSE
-                        KIR DONGU_DEVAM // Ana menüye dönmek için devam et
-                    DEĞİLSE
-                        YAZDIR("Geçersiz giriş. Lütfen 'E' veya 'H' giriniz.")
-                        DEVAM ET DONGU_DEVAM
-                BİTİR DONGU_DEVAM
-
-        BİTİR DONGU_ANA
-    SON
-
-==RANDEVU MODÜLÜ==
-
-FONKSIYON RANDEVU_MODULU(HASTA_TC)
-    BASLA
-        YAZDIR("--- Randevu Alma Modülü ---")
+        SON_DONGU // DONGU SÜRESİNCE (DONGU_DEVAM_ET)
         
-        DONGU_POLIKLINIK:
-            // 1. Poliklinik Seçimi
-            YAZDIR("Lütfen bir Poliklinik seçiniz:")
-            POLIKLINIK_LISTESI = VERITABANI_POLIKLINIK_AL()
-            GOSTER_LISTE(POLIKLINIK_LISTESI)
-            GIRDI_AL(SECILEN_POLIKLINIK, "Poliklinik Seçiminiz: ")
-            
-            EĞER (SECILEN_POLIKLINIK GEÇERLİ) İSE
-                KIR DONGU_POLIKLINIK
-            DEĞİLSE
-                YAZDIR("Hata: Geçersiz poliklinik seçimi.")
-        BİTİR DONGU_POLIKLINIK
+    AKSİ HALDE
+        YAZDIR("Kimlik doğrulama başarısız. Lütfen T.C. Kimlik Numaranızı kontrol ediniz.")
+    SON_EĞER
 
-        DONGU_DOKTOR:
-            // 2. Doktor Listesi ve Seçimi
-            YAZDIR("--- Doktor Seçimi ---")
-            DOKTOR_LISTESI = VERITABANI_DOKTOR_AL(SECILEN_POLIKLINIK)
-            EĞER (UZUNLUK(DOKTOR_LISTESI) EŞİT 0) İSE
-                YAZDIR("Bu poliklinikte uygun doktor bulunmamaktadır. Lütfen başka bir poliklinik seçiniz.")
-                GIT DONGU_POLIKLINIK // Poliklinik seçimine geri dön
-            DEĞİLSE
-                GOSTER_LISTE(DOKTOR_LISTESI)
-                GIRDI_AL(SECILEN_DOKTOR, "Doktor Seçiminiz: ")
-                
-                EĞER (SECILEN_DOKTOR GEÇERLİ) İSE
-                    KIR DONGU_DOKTOR
-                DEĞİLSE
-                    YAZDIR("Hata: Geçersiz doktor seçimi.")
-        BİTİR DONGU_DOKTOR
+SON_FONKSIYON
 
-        DONGU_SAAT:
-            // 3. Uygun Saatlerin Gösterilmesi ve Seçimi
-            YAZDIR("--- Uygun Saat Seçimi ---")
-            UYGUN_SAATLER = VERITABANI_UYGUN_SAATLER_AL(SECILEN_DOKTOR)
-            EĞER (UZUNLUK(UYGUN_SAATLER) EŞİT 0) İSE
-                YAZDIR("Seçilen doktor için uygun randevu saati bulunmamaktadır. Lütfen başka bir doktor seçiniz.")
-                GIT DONGU_DOKTOR // Doktor seçimine geri dön
-            DEĞİLSE
-                GOSTER_LISTE(UYGUN_SAATLER)
-                GIRDI_AL(SECILEN_SAAT, "Saat Seçiminiz (GG/AA/YYYY SS:DD): ")
-                
-                EĞER (SECILEN_SAAT GEÇERLİ VE BOŞ DEĞİL) İSE
-                    KIR DONGU_SAAT
-                DEĞİLSE
-                    YAZDIR("Hata: Geçersiz saat seçimi.")
-        BİTİR DONGU_SAAT
-
-        // 4. Randevu Onayı ve Kayıt
-        YAZDIR("--- Randevu Onayı ---")
-        YAZDIR("Poliklinik: " + SECILEN_POLIKLINIK)
-        YAZDIR("Doktor: " + SECILEN_DOKTOR)
-        YAZDIR("Tarih/Saat: " + SECILEN_SAAT)
-        
-        GIRDI_AL(ONAY, "Randevuyu onaylıyor musunuz? (E/H): ")
-        
-        EĞER UPPER(ONAY) EŞİT "E" İSE
-            // Randevu veritabanına kaydedilir
-            RAND_ID = VERITABANI_RANDEVU_KAYDET(HASTA_TC, SECILEN_POLIKLINIK, SECILEN_DOKTOR, SECILEN_SAAT)
-            EĞER (RAND_ID BAŞARILI) İSE
-                YAZDIR("Randevunuz başarıyla oluşturuldu. Randevu No: " + RAND_ID)
-                
-                // SMS Gönderimi
-                HASTA_TEL = VERITABANI_HASTA_TEL_AL(HASTA_TC)
-                SMS_MESAJ = "Randevu Bilgileriniz: " + SECILEN_POLIKLINIK + ", " + SECILEN_DOKTOR + ", " + SECILEN_SAAT
-                SMS_GONDER(HASTA_TEL, SMS_MESAJ)
-                YAZDIR("Randevu bilgileriniz SMS olarak gönderilmiştir.")
-            DEĞİLSE
-                YAZDIR("Hata: Randevu kaydı sırasında bir sorun oluştu.")
-            BİTİR EĞER
-        DEĞİLSE
-            YAZDIR("Randevu almaktan vazgeçildi. Ana menüye dönülüyor.")
-        BİTİR EĞER
-
-    SON
-
-==TAHLİL MODÜLÜ=
-
-FONKSIYON TAHLIL_MODULU(HASTA_TC)
-    BASLA
-        YAZDIR("--- Tahlil Sonucu Görüntüleme Modülü ---")
-        
-        // 1. Tahlil Var Mı Kontrolü
-        TAHLIL_LISTESI = VERITABANI_TAHLIL_KONTROL(HASTA_TC)
-        
-        EĞER (UZUNLUK(TAHLIL_LISTESI) EŞİT 0) İSE
-            YAZDIR("Sistemde adınıza ait beklemede veya tamamlanmış herhangi bir tahlil kaydı bulunmamaktadır.")
-            GERI_DON() // Ana Menüye dönme sinyali
-        DEĞİLSE
-            YAZDIR("Adınıza kayıtlı tahlil sonuçları:")
-            GOSTER_LISTE(TAHLIL_LISTESI)
-            GIRDI_AL(SECILEN_TAHLIL_ID, "Görüntülemek istediğiniz tahlilin ID numarasını giriniz: ")
-            
-            TAHLIL_DURUMU = VERITABANI_TAHLIL_DURUM_AL(SECILEN_TAHLIL_ID)
-            
-            // 2. Sonuç Hazır Mı Kontrolü (koşul)
-            EĞER (TAHLIL_DURUMU EŞİT "HAZIR") İSE
-                // 3. Sonuç Görüntüleme
-                TAHLIL_SONUCU = VERITABANI_TAHLIL_SONUC_AL(SECILEN_TAHLIL_ID)
-                YAZDIR("--- Tahlil Sonuçları ---")
-                GOSTER_SONUC(TAHLIL_SONUCU) // Sonuçları ekrana bas
-                
-                // 4. Sonuçları PDF İndir Seçeneği
-                GIRDI_AL(PDF_SECIM, "Sonucu PDF olarak indirmek ister misiniz? (E/H): ")
-                EĞER UPPER(PDF_SECIM) EŞİT "E" İSE
-                    PDF_OLUSTUR_VE_INDIR(TAHLIL_SONUCU, SECILEN_TAHLIL_ID)
-                    YAZDIR("Tahlil sonucu PDF olarak indirilmiştir.")
-                BİTİR EĞER
-                
-            EĞER (TAHLIL_DURUMU EŞİT "BEKLEMEDE") İSE
-                // Bekleme mesajı
-                YAZDIR("Tahlil sonucunuz henüz hazır değildir. Lütfen daha sonra tekrar kontrol ediniz.")
-                
-            EĞER (TAHLIL_DURUMU EŞİT "HATALI") İSE
-                YAZDIR("Tahlil sonucunuzun durumunda bir sorun oluştu. Lütfen hastane ile iletişime geçiniz.")
-
-            DEĞİLSE
-                YAZDIR("Hata: Geçersiz tahlil seçimi veya durum.")
-            BİTİR EĞER
-
-        BİTİR EĞER
-        
-    SON
+// --- Yardımcı Fonksiyonlar (Açıklama Amaçlı) ---
+// Not: Bu fonksiyonların gerçek kodları sistem gereksinimlerine göre yazılmalıdır.
+FONKSIYON KimlikDogrulama(tc_no) // GERİ_DÖN BAŞARILI/BAŞARISIZ
+FONKSIYON POLIKLINIK_LISTESI_GETIR() 
+FONKSIYON PoliklinikGeçerliMi(isim) // GERİ_DÖN EVET/HAYIR
+FONKSIYON DoktorlariGetir(poliklinik) // GERİ_DÖN doktor_listesi
+FONKSIYON UygunSaatleriGetir(doktor_id) // GERİ_DÖN saat_tarih_listesi
+FONKSIYON RandevuKaydet(tc_no, doktor_id, saat_tarih) // GERİ_DÖN BAŞARILI/BAŞARISIZ
+FONKSIYON SMS_Gonder(tc_no, mesaj)
+FONKSIYON TahlilVarMi(tc_no) // GERİ_DÖN EVET/HAYIR
+FONKSIYON SonuclarHazirMi(tc_no) // GERİ_DÖN EVET/HAYIR
+FONKSIYON TahlilSonuclariniGetir(tc_no) // GERİ_DÖN sonuç_detayları
+FONKSIYON PDF_Olustur_Ve_Indir(sonuclar)
