@@ -1,6 +1,7 @@
 BAŞLA
 
   // --- Değişken Tanımlamaları ---
+  
   DEĞİŞKEN ogrenciNo, sifre : METİN
   DEĞİŞKEN girisBasarili : MANTIKSAL = YANLIŞ
   DEĞİŞKEN kayitDevamEdiyor : MANTIKSAL = DOĞRU
@@ -112,6 +113,7 @@ BAŞLA
       EĞER BİTTİ
       
     DÖNGÜ BİTTİ
+    
   EĞER BİTTİ
   
   // --- 3. Adım: Kayıt Özeti ve Danışman Onayı Kontrolü ---
