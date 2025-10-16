@@ -1,11 +1,11 @@
-Siz: Bana online alışveriş sepeti ve ödeme sisteminin algoritmasını adım adım açıklar mısın?
-Ben: Tabii, kullanıcı girişinden stok kontrolüne, kargo hesaplamasından sipariş onayına kadar tüm süreci detaylıca anlattım.
+Kullanıcı: Bana online alışveriş sepeti ve ödeme sisteminin algoritmasını adım adım açıklar mısın?
+Gemini: Tabii, kullanıcı girişinden stok kontrolüne, kargo hesaplamasından sipariş onayına kadar tüm süreci detaylıca anlattım.
 
-Siz: Harika, şimdi bu sistemi belirli kurallarla pseudocode (sözde kod) olarak yazar mısın?
-Ben: Elbette, istediğin EĞER-İSE, DÖNGÜ gibi yapıları kullanarak pseudocode'u hazırladım.
+Kullanıcı: Harika, şimdi bu sistemi belirli kurallarla pseudocode (sözde kod) olarak yazar mısın?
+Gemini: Elbette, istediğin EĞER-İSE, DÖNGÜ gibi yapıları kullanarak pseudocode'u hazırladım.
 
-Siz: Bu pseudocode'u görsel bir akış şemasına dönüştürmek için Graphviz DOT koduna çevirmeni istiyorum.
-Ben: İstediğin şekil ve etiket kurallarına uygun DOT kodunu oluşturdum.
+Kullanıcı: Bu pseudocode'u görsel bir akış şemasına dönüştürmek için Graphviz DOT koduna çevirmeni istiyorum.
+Gemini: İstediğin şekil ve etiket kurallarına uygun DOT kodunu oluşturdum.
 
-Siz: Oluşturduğun kodda bazı hatalar var, bunları düzeltebilir misin?
-Ben: Haklısın, kodu kontrol edip tüm sözdizimi (syntax) ve mantık hatalarını düzelterek sana nihai, çalışır halini sundum.
+Kulllanıcı: Oluşturduğun kodda bazı hatalar var, bunları düzeltebilir misin?
+Gemini: Haklısın, kodu kontrol edip tüm sözdizimi (syntax) ve mantık hatalarını düzelterek sana nihai, çalışır halini sundum.
