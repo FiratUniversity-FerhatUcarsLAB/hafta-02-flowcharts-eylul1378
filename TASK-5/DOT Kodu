@@ -1,0 +1,63 @@
+digraph AkilliEvGuvenlikSistemi {
+    // Grafik ayarları: Yukarıdan aşağıya akış ve düğüm/kenar stilleri
+    rankdir=TB;
+    node [shape=box, style=rounded, fontname="Helvetica"];
+    edge [fontname="Helvetica", fontsize=10];
+
+    // Düğüm tanımlamaları (Adımlar ve Koşullar)
+    Start [label="Başla", shape=ellipse];
+    Check_System_Active [label="Sistem Aktif mi?", shape=diamond, color=blue, fontcolor=blue];
+    
+    // Sistem Aktif Dalı
+    Read_Sensors [label="Sensörleri Oku\n(Hareket, Kapı/Pencere)"];
+    Threat_Detected [label="Tehdit Algılandı mı?", shape=diamond];
+    Check_Owner_Home [label="Ev Sahibi Evde mi?", shape=diamond];
+    Ignore_False_Alarm [label="Yanlış Alarm Olarak Yoksay"];
+    
+    // Gerçek Tehdit Dalı
+    Check_Alarm_Status [label="Alarm Zaten Aktif mi?", shape=diamond];
+    Activate_Alarm_Procedure [label="Alarm Durumunu 'AKTİF' Et\nKamera Kaydını Başlat"];
+    Set_Alarm_Level [label="Alarm Seviyesini Belirle"];
+    Send_Notifications [label="Bildirimleri Gönder\n(SMS + App + Email)"];
+    
+    // Sistem Pasif Dalı
+    System_Passive_Mode [label="Sistem Pasif Modda Bekliyor"];
+    Disarm_Alarm [label="Çalan Alarm Varsa Durdur"];
+    
+    // Döngünün sonu
+    No_Threat [label="Sistem Normal, Tehdit Yok"];
+    Wait [label="Bekle (1sn)"];
+
+    // Akış ve Kenarlar (Oklar)
+    Start -> Check_System_Active;
+
+    // Sistem Aktif ise...
+    Check_System_Active -> Read_Sensors [label=" Evet"];
+    Read_Sensors -> Threat_Detected;
+    
+    // Tehdit algılandıysa...
+    Threat_Detected -> Check_Owner_Home [label=" Evet"];
+    Check_Owner_Home -> Ignore_False_Alarm [label=" Evet (Yanlış Alarm)"];
+    Ignore_False_Alarm -> Wait;
+
+    // Ev sahibi evde değilse (Gerçek Tehdit)...
+    Check_Owner_Home -> Check_Alarm_Status [label=" Hayır (Gerçek Tehdit)"];
+    Check_Alarm_Status -> Wait [label=" Evet (Zaten Çalıyor)"];
+    Check_Alarm_Status -> Activate_Alarm_Procedure [label=" Hayır"];
+    Activate_Alarm_Procedure -> Set_Alarm_Level;
+    Set_Alarm_Level -> Send_Notifications;
+    Send_Notifications -> Wait;
+    
+    // Tehdit algılanmadıysa...
+    Threat_Detected -> No_Threat [label=" Hayır"];
+    No_Threat -> Wait;
+    
+    // Sistem Aktif değilse (Pasif ise)...
+    Check_System_Active -> System_Passive_Mode [label=" Hayır"];
+    System_Passive_Mode -> Disarm_Alarm;
+    Disarm_Alarm -> Wait;
+
+    // --- SONSUZ DÖNGÜ İÇİN GERİ OK ---
+    // Akışın sonundaki "Bekle" adımından döngünün başına geri döner
+    Wait -> Check_System_Active [color=red, style=dashed, label=" Döngüyü Tekrarla"];
+}
