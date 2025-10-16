@@ -1,4 +1,4 @@
-FONKSIYON HastaneBilgiSistemi()
+FONKSIYON HastaneBilgiSistemi() 
     // ----------------------------------------------------
     // Adım 1: Başlangıç ve Kimlik Doğrulama
     // ----------------------------------------------------
