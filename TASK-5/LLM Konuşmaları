@@ -1,0 +1,5 @@
+Kullanıcı: Merhaba, senden 7/24 çalışan bir akıllı ev güvenlik sisteminin algoritmasını pseudocode olarak yazmanı istedim.
+Gemini: Evet, ben de bu isteğine karşılık sistemin sensör okuma, tehdit algılama ve bildirim gönderme gibi tüm adımlarını içeren detaylı bir pseudocode hazırladım.
+
+Kullanıcı: Ardından, bu pseudocode'u Graphviz DOT dilinde bir akış şemasına çevirmeni ve sistemin sürekli döngüsünü özel bir "geri ok" ile göstermeni rica ettim.
+Gemini: Bunun üzerine de, döngünün sonundan başına geri dönen bir ok ile sistemin sonsuz döngü yapısını net bir şekilde gösteren DOT kodunu sana sundum.
