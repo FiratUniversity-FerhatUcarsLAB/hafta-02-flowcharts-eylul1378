@@ -1,14 +1,14 @@
-Siz: Hastane sistemi (Kimlik Doğrulama, Randevu Alma, Tahlil Sonucu Görüntüleme) için temel sistem gereksinimlerini belirttim.
-Ben: Sağladığınız gereksinimleri analiz ederek sistemin iş akışını özetledim.
+Kullanıcı: Hastane sistemi (Kimlik Doğrulama, Randevu Alma, Tahlil Sonucu Görüntüleme) için temel sistem gereksinimlerini belirttiniz.
+Gemini: Sağladığınız gereksinimleri analiz ederek sistemin iş akışını özetledim.
 
-Siz: Randevu Modülü adımları için (Kimlik, Seçimler, Onay, SMS) pseudocode yazmanızı istedim.
-Ben: Randevu Modülü'nün koşul ve döngülerini içeren pseudocode'u sundum.
+Kullanıcı: Randevu Modülü adımları için (Kimlik, Seçimler, Onay, SMS) pseudocode yazmanızı istediniz.
+Gemini: Randevu Modülü'nün koşul ve döngülerini içeren pseudocode'u sundum.
 
-Siz: Ardından, Tahlil Modülü adımları için (Kontroller, Görüntüleme, PDF indirme) ayrı bir pseudocode talep ettim.
-Ben: Tahlil Modülü'ne özel mantığı içeren pseudocode'u sağladım.
+Kullanıcı: Ardından, Tahlil Modülü adımları için (Kontroller, Görüntüleme, PDF indirme) ayrı bir pseudocode talep ettiniz.
+Gemini: Tahlil Modülü'ne özel mantığı içeren pseudocode'u sağladım.
 
-Siz: Bu iki modülün sözde kodunu tek bir ana sistem altında birleştirmenizi rica ettim.
-Ben: Randevu ve Tahlil süreçlerini tek bir ana menü döngüsünde toplayan birleşik pseudocode'u oluşturdum.
+Kullanıcı: Bu iki modülün sözde kodunu tek bir ana sistem altında birleştirmenizi rica ettiniz.
+Gemini: Randevu ve Tahlil süreçlerini tek bir ana menü döngüsünde toplayan birleşik pseudocode'u oluşturdum.
 
-Siz: Son olarak, yazdığınız bu birleşik sözde kodun akışını ve mantığını gösteren sözdizimi hatasız bir DOT (Graphviz) kodu istedim.
-Ben: Sistemin tüm karar noktalarını ve akışını gösteren DOT akış diyagramı kodunu size verdim.
+Kullanıcı: Son olarak, yazdığınız bu birleşik sözde kodun akışını ve mantığını gösteren sözdizimi hatasız bir DOT (Graphviz) kodu istediniz.
+Gemini: Sistemin tüm karar noktalarını ve akışını gösteren DOT akış diyagramı kodunu size verdim.
