@@ -124,17 +124,28 @@ FONKSIYON HastaneBilgiSistemi()
 
 SON_FONKSIYON
 
-// --- Yardımcı Fonksiyonlar (Açıklama Amaçlı) ---
+// --- Yardımcı Fonksiyonlar (Açıklama Amaçlı) --- 
+
 // Not: Bu fonksiyonların gerçek kodları sistem gereksinimlerine göre yazılmalıdır.
 
 FONKSIYON KimlikDogrulama(tc_no) // GERİ_DÖN BAŞARILI/BAŞARISIZ
+
 FONKSIYON POLIKLINIK_LISTESI_GETIR() 
+
 FONKSIYON PoliklinikGeçerliMi(isim) // GERİ_DÖN EVET/HAYIR
+
 FONKSIYON DoktorlariGetir(poliklinik) // GERİ_DÖN doktor_listesi
+
 FONKSIYON UygunSaatleriGetir(doktor_id) // GERİ_DÖN saat_tarih_listesi
+
 FONKSIYON RandevuKaydet(tc_no, doktor_id, saat_tarih) // GERİ_DÖN BAŞARILI/BAŞARISIZ
+
 FONKSIYON SMS_Gonder(tc_no, mesaj)
+
 FONKSIYON TahlilVarMi(tc_no) // GERİ_DÖN EVET/HAYIR
+
 FONKSIYON SonuclarHazirMi(tc_no) // GERİ_DÖN EVET/HAYIR
+
 FONKSIYON TahlilSonuclariniGetir(tc_no) // GERİ_DÖN sonuç_detayları
+
 FONKSIYON PDF_Olustur_Ve_Indir(sonuclar)
