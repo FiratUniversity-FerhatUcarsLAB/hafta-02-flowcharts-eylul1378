@@ -126,6 +126,7 @@ SON_FONKSIYON
 
 // --- Yardımcı Fonksiyonlar (Açıklama Amaçlı) ---
 // Not: Bu fonksiyonların gerçek kodları sistem gereksinimlerine göre yazılmalıdır.
+
 FONKSIYON KimlikDogrulama(tc_no) // GERİ_DÖN BAŞARILI/BAŞARISIZ
 FONKSIYON POLIKLINIK_LISTESI_GETIR() 
 FONKSIYON PoliklinikGeçerliMi(isim) // GERİ_DÖN EVET/HAYIR
